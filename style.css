@@ -1,0 +1,17 @@
+body {
+    background-color: rgb(29, 214, 247);
+}
+h1{
+    text-align: center;
+}
+form{
+    text-align: center;
+
+}
+#ville{
+    border: 0;
+}
+#recherche{
+    background-color: blue;
+    border: 0;
+}
