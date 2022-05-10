@@ -22,8 +22,9 @@ form{
     min-width: 80px;
 }
 
-#resultat{
-    display: grid;
+#resultat{  
+    display: flex;
+    justify-content: space-around;
     justify-items: center;
     margin: 20px;
     padding: 20px;
