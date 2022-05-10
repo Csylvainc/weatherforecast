@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -12,14 +12,18 @@
     <div class="selection">
         <form action="#">
             <input type="text" name="ville" id="ville" placeholder="Please add a city">
+            <select name="nbJour" id="nbJour">
+                <option value="1">1 jour</option>
+                <option value="3">3 jours</option>
+                <option value="5">5 jours</option>
+                <option value="7">7 jours</option>
+            </select>
             <input type="submit" value="submit" id="recherche">
         </form>
     </div>
     <div id="resultat">
-        
+
     </div>
     <script src="./weatherAwait.js" defer></script>
 </body>
 </html>
-
-

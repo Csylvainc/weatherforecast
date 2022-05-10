@@ -22,49 +22,17 @@ async function getMeteo(lat, lng) {
     let reponse = await rep.json();
     tempsJ0 = reponse.current.weather[0].id;
     cloudsPercent = reponse.current.clouds;
-    let tempsJ1 = reponse.daily[1].weather[0].id;
-    let tempsJ2 = reponse.daily[2].weather[0].id;
-    let tempsJ3 = reponse.daily[3].weather[0].id;
-    let tempsJ4 = reponse.daily[4].weather[0].id;
-    let tempsWeek = [tempsJ0,tempsJ1,tempsJ2,tempsJ3,tempsJ4];
-    let dayNight = reponse.current.uvi;
-    console.log(dayNight);
-    // function pour meteo du jour
-    //writeHTML(temps, cloudsPercent);
+    let tempsWeek = [];
+    nbJours = document.querySelector("#nbJour").value;
 
-    //function pour météo de la semaine
-    writeWeekHTML(tempsWeek, dayNight);
-}
-
-// ecriture dans le DOM avec les données méteo du jour
-
-function writeHTML(temps, cloudsPercent) {
-    let toDay = day();
-    let jour = document.createElement("h2");
-    jour.innerHTML = toDay;
-    let resultat = document.querySelector("#resultat");
-    resultat.appendChild(jour);
-    let imgMeteo = document.createElement("img");
-    imgMeteo.style.width = "150px";
-    if (temps === 800) {
-        imgMeteo.src = `./img/sun.svg`; 
-        resultat.appendChild(imgMeteo);
-    } else if (temps > 600 && temps < 622) {
-        imgMeteo.src = `./img/snow.svg`;
-        resultat.appendChild(imgMeteo);
-    } else if (temps >= 801 && temps <= 804) {
-        if (cloudsPercent <= 50) {
-            imgMeteo.src = `./img/cloudy.svg`;
-            resultat.appendChild(imgMeteo);
-        } else {
-            imgMeteo.src = `./img/clouds.svg`;
-            resultat.appendChild(imgMeteo);
-        }
-    } else {
-        imgMeteo.src = `./img/rain.svg`;
-        imgMeteo.style.width = "150px";
-        resultat.appendChild(imgMeteo);
+    for(j=0; j<=nbJours;j++){
+        tempsWeek.push(reponse.daily[j].weather[0].id);
     }
+    
+    let dayNight = reponse.current.uvi;
+    console.log(tempsWeek);
+    //appel de la fonction pour météo de la semaine
+    writeWeekHTML(tempsWeek, dayNight);
 }
 
 // ecriture dans le DOM avec les données méteo de la semaine
@@ -107,13 +75,7 @@ function writeWeekHTML(tempsWeek, dayNight){
 }
 
 
-// transformation de l'objet date en string
-function day() {
-    let days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    let d = new Date();
-    console.log(days[d.getDay()]);
-    return days[d.getDay()];
-}
+
 // tableau de la semaine commencant par aujourd'hui
 function week(){
     let days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -127,7 +89,9 @@ function week(){
     for(let pastJ = 0 ; pastJ < d ; pastJ++ ){
         week.push(days[pastJ]);
     }
-    week = week.slice(0, -2);
+    
+    nbJours = document.querySelector("#nbJour").value;
+    week = week.slice(0, nbJours);
     return week
 }
 
