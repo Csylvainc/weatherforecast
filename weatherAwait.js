@@ -1,10 +1,13 @@
 // recupération de la latitude et de la longitude depuis l'API opencagedata
 async function getGeometry() {
+    const cacheVersion = 1;
+    const cacheName = `weatherApp-${cacheVersion}`;
+    const api_geo_key = '5f94c31fe86a4ad0ba4d4bf404643eeb';
+    const api_url = `https://api.opencagedata.com/geocode/v1/json?key=${api_geo_key}&q=${where}&pretty=1&no_annotations=1`;
+    let cacheData = await getCacheData(cacheName, api_url);
     let where = document.getElementById("ville").value;
     where = encodeURIComponent(where)
     console.log(where);
-    const api_geo_key = '5f94c31fe86a4ad0ba4d4bf404643eeb';
-    const api_url = `https://api.opencagedata.com/geocode/v1/json?key=${api_geo_key}&q=${where}&pretty=1&no_annotations=1`;
     let rep = await fetch(api_url);
     let reponse = await rep.json();
     const lat = reponse.results[0].geometry.lat;
@@ -75,13 +78,11 @@ function writeWeekHTML(tempsWeek, dayNight){
 }
 
 
-
 // tableau de la semaine commencant par aujourd'hui
 function week(){
     let days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     let d = new Date();
     d = d.getDay();
-    console.log(d);
     let week = [];
     for(let i = d; i < days.length ; i++){
         week.push(days[i]);
@@ -89,12 +90,14 @@ function week(){
     for(let pastJ = 0 ; pastJ < d ; pastJ++ ){
         week.push(days[pastJ]);
     }
-    
+    // modification du tableau en fonction du nombre de jours demandés par l'utilisateur
     nbJours = document.querySelector("#nbJour").value;
     week = week.slice(0, nbJours);
     return week
 }
 
+
+// Action au clic sur le bouton submit
 document.querySelector("#recherche").addEventListener("click", function (e) {
     e.preventDefault();
     document.querySelector("#resultat").innerHTML = "";
