@@ -1,50 +1,36 @@
 // recupération de la latitude et de la longitude depuis l'API opencagedata
-async function getGeometry() {
-    const cacheVersion = 1;
-    const cacheName = `weatherApp-${cacheVersion}`;
+async function getGeometry(city) {
     const api_geo_key = '5f94c31fe86a4ad0ba4d4bf404643eeb';
-    const api_url = `https://api.opencagedata.com/geocode/v1/json?key=${api_geo_key}&q=${where}&pretty=1&no_annotations=1`;
-    let cacheData = await getCacheData(cacheName, api_url);
-    let where = document.getElementById("ville").value;
-    where = encodeURIComponent(where)
-    console.log(where);
+    const api_url = `https://api.opencagedata.com/geocode/v1/json?key=${api_geo_key}&q=${city}&pretty=1&no_annotations=1`;
     let rep = await fetch(api_url);
     let reponse = await rep.json();
     const lat = reponse.results[0].geometry.lat;
     const lng = reponse.results[0].geometry.lng;
     console.log(lat + " " + lng);
-    getMeteo(lat, lng);
+    return {lat, lng}
 }
 
-
 // recupération de la méteo du lieu recherché
-async function getMeteo(lat, lng) {
+async function getMeteo(obj) {
     const API_meteo_KEY = "9612067697a364bf80ed7e252bbc95e2";
-    let urlMeteo = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lng}&appid=${API_meteo_KEY}`
+    let urlMeteo = `https://api.openweathermap.org/data/2.5/onecall?lat=${obj.lat}&lon=${obj.lng}&appid=${API_meteo_KEY}`
     let rep = await fetch(urlMeteo);
     let reponse = await rep.json();
     tempsJ0 = reponse.current.weather[0].id;
     cloudsPercent = reponse.current.clouds;
     let tempsWeek = [];
     nbJours = document.querySelector("#nbJour").value;
-
     for(j=0; j<=nbJours;j++){
         tempsWeek.push(reponse.daily[j].weather[0].id);
     }
-    
     let dayNight = reponse.current.uvi;
     console.log(tempsWeek);
     //appel de la fonction pour météo de la semaine
-    writeWeekHTML(tempsWeek, dayNight);
+    return {tempsWeek, dayNight};
 }
 
 // ecriture dans le DOM avec les données méteo de la semaine
-function writeWeekHTML(tempsWeek, dayNight){
-    if (dayNight == 0) {
-        document.body.style.backgroundColor = "darkblue";
-    }else {
-        document.body.style.backgroundColor = "lightblue";
-    }
+function writeWeekHTML(objmMteo){
     let myWeek = week();
     console.log(myWeek);
     let resultat = document.querySelector("#resultat");
@@ -55,28 +41,33 @@ function writeWeekHTML(tempsWeek, dayNight){
         let divDayH3 = document.createElement("h3");
         divDay.appendChild(divDayH3);
         divDayH3.innerHTML = element;
-        let divDayImg = document.createElement("img");
+        let divDayImg = document.createElement("object");
         divDayImg.style.maxWidth = "100px";
-        if(tempsWeek[index] === 800){
-            divDayImg.src = `./img/sun.svg`; 
+        if(objmMteo.tempsWeek[index] === 800){
+            divDayImg.data = `./img/sun.svg`; 
             divDay.appendChild(divDayImg);
-        }else if (tempsWeek[index] >= 600 && tempsWeek[index] <= 622) {
-            divDayImg.src = `./img/snow.svg`;
+        }else if (objmMteo.tempsWeek[index] >= 600 && objmMteo.tempsWeek[index] <= 622) {
+            divDayImg.data = `./img/snow.svg`;
             divDay.appendChild(divDayImg);
-        }else if (tempsWeek[index] >= 801 && tempsWeek[index] <= 802) {
-                divDayImg.src = `./img/cloudy.svg`;
+        }else if (objmMteo.tempsWeek[index] >= 801 && objmMteo.tempsWeek[index] <= 802) {
+                divDayImg.data = `./img/cloudy.svg`;
                 divDay.appendChild(divDayImg);
-        }else if(tempsWeek[index] >= 803 && tempsWeek[index] <= 804){
-            divDayImg.src = `./img/clouds.svg`;
+        }else if(objmMteo.tempsWeek[index] >= 803 && objmMteo.tempsWeek[index] <= 804){
+            divDayImg.data = `./img/clouds.svg`;
             divDay.appendChild(divDayImg);
         } else {
-            divDayImg.src = `./img/rain.svg`;
+            divDayImg.data = `./img/rain.svg`;
+            divDayImg.id = "rain";
             divDay.appendChild(divDayImg);
         }
-        
-    }
+        if (objmMteo.dayNight == 0) {
+            document.body.style.backgroundColor = "darkblue";
+            divDayImg.style.filter ="invert()";
+        }else {
+            document.body.style.backgroundColor = "lightblue";
+        }
+    } 
 }
-
 
 // tableau de la semaine commencant par aujourd'hui
 function week(){
@@ -96,12 +87,14 @@ function week(){
     return week
 }
 
-
 // Action au clic sur le bouton submit
 document.querySelector("#recherche").addEventListener("click", function (e) {
     e.preventDefault();
+    let city = document.getElementById("ville").value;
+    city = encodeURIComponent(city)
+    console.log(city);
     document.querySelector("#resultat").innerHTML = "";
-    getGeometry();
+    getGeometry(city).then(result => getMeteo(result)).then(display => writeWeekHTML(display));
 })
 
 

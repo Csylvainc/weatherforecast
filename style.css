@@ -31,6 +31,7 @@ form{
 
 #resultat{  
     display: flex;
+    flex-wrap: wrap;
     justify-content: space-around;
     justify-items: center;
     margin: 20px;
